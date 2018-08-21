@@ -251,9 +251,6 @@ def handle_message(event):
             TextSendMessage(text="[ RESULT ]\nBot using by [ "+profile_name+" ] on Toram News:\n\n"+content+tx)])
 
     elif text == '.samehadaku':
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text="Harap bersabar, " + profile_name + " :v")
         target = 'https://samehadaku.tv'
         req = requests.get(target)
         bs = BeautifulSoup(req.content, "html.parser")
@@ -267,14 +264,13 @@ def handle_message(event):
             date = dataaa[0].find('span').text
             name = data["title"]
             link = data["href"]
-            time = date
             content += "{}).  Judul: {}".format(num, name)
             content += "\n       Link: {}".format(link)
-            content += "\n       Tanggal Rilis: {}\n\n".format(time)
+            content += "\n       Tanggal Rilis: {}\n\n".format(date)
             te = "\n✓ Total ada {} update anime.\n✓ Info update anime selengkapnya, klik:\n➡ https://www.samehadaku.tv/".format(len(dataaa))
-            line_bot_api.reply_message(
-                event.reply_token, [
-                TextSendMessage(text=content+te)])
+        line_bot_api.reply_message(
+            event.reply_token, [
+            TextSendMessage(text=content+te)])
 
 
 if __name__ == "__main__":
