@@ -248,7 +248,33 @@ def handle_message(event):
 
         line_bot_api.reply_message(
             event.reply_token, [
-            TextSendMessage(text="[ R E S U L T ]\n\nBot using by [ "+profile_name+" ] on Toram News:\n\n"+content+tx)])
+            TextSendMessage(text="[ RESULT ]\nBot using by [ "+profile_name+" ] on Toram News:\n\n"+content+tx)])
+
+    elif text == '.samehadaku':
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text="Harap bersabar, " + profile_name + " :v")
+        target = 'https://samehadaku.tv'
+        req = requests.get(target)
+        bs = BeautifulSoup(req.content, "html.parser")
+        dataa = bs.find_all("ul",{"class":"posts-items posts-list-container"})
+        dataaa = dataa[0].find_all("li",{"class":"post-item tie-standard"})
+        content = "[ RESULT ]\n~ Last Update Anime: Samehadaku ~\n\n\n"
+        num = 0
+        for data in dataaa:
+            num += 1
+            data = dataaa[0].find('a')
+            date = dataaa[0].find('span').text
+            name = data["title"]
+            link = data["href"]
+            time = date
+            content += "{}).  Judul: {}".format(num, name)
+            content += "\n       Link: {}".format(link)
+            content += "\n       Tanggal Rilis: {}\n\n".format(time)
+            te = "\n✓ Total ada {} update anime.\n✓ Info update anime selengkapnya, klik:\n➡ https://www.samehadaku.tv/".format(len(dataaa))
+            line_bot_api.reply_message(
+                event.reply_token, [
+                TextSendMessage(text=content+te)])
 
 
 if __name__ == "__main__":
