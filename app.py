@@ -211,6 +211,11 @@ def callback():
 
     return 'OK'
 
+
+@handler.add(MessageEvent, message=TextMessage)
+def handle_message(event):
+    text = (event.message.text).lower()
+    msg = text.split()
     groupId = event.source.group_id
     userId = event.source.user_id
     profile = line_bot_api.get_profile(userId)
@@ -218,29 +223,58 @@ def callback():
     profile_picture = profile.picture_url
     profile_sm = profile.status_message
 
+    if text == '.samehadaku':
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text="Harap bersabar, " + profile_name + " :v")
+        target = 'https://samehadaku.tv'
+        req = requests.get(target)
+        bs = BeautifulSoup(req.content, "html.parser")
+        dataa = bs.find_all("ul",{"class":"posts-items posts-list-container"})
+        dataaa = dataa[0].find_all("li",{"class":"post-item tie-standard"})
+        content = "[ RESULT ]\n~ Last Update Anime: Samehadaku ~\n\n\n"
+        num = 0
+        for data in dataaa:
+            num += 1
+            data = dataaa[1].find('a')
+            date = dataaa[1].find('span').text
+            name = data["title"]
+            link = data["href"]
+            time = date
+            content += "{}).  Judul: {}".format(num, name)
+            content += "\n       Link: {}".format(link)
+            content += "\n       Tanggal Rilis: {}\n\n".format(time)
+            te = "\n✓ Total ada {} update anime.\n✓ Info update anime selengkapnya, klik:\n➡ https://www.samehadaku.tv/".format(len(dataaa))
+            line_bot_api.reply_message(
+                event.reply_token, [
+                TextSendMessage(text=content+te)])
 
-def trans():
-    separate = text.split("-")
-    separate = separate[1].split(" ")
-    lang = separate[0]
-    say = text.replace(".tr-" + lang + " ","")
-    if lang not in list_language["list_translate"]:
-        return line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text="Bahasa tujuan translate tidak ditemukan."))
-    translator = Translator()
-    hasil = translator.translate(say, dest=lang)
-    content = hasil.text
+    elif text == '.toramnews':
+        target = 'https://en.toram.jp/information/?type_code=all'
+        req = requests.get(target)
+        bs = BeautifulSoup(req.content, "html.parser")
+        dataa = bs.find_all("div",{"class":"useBox"})
+        dataaa = dataa[0].find_all("li")
+        content = "~ Toram Online Official News ~\n\n\n"
+        num = 0
+        i = 0
 
+        for data in dataaa:
+            num += 1
+            if i <= 9:
+                pass
 
-@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    if (event.message.text).lower() == '.tr-':
-        content = trans()
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=content)
-    )
+            data = dataaa[i].find('a')
+            news = data.text
+            link = data["href"]
+            tx = "✓ Total ada {} berita.\n\n\n✓ Info selengkapnya, klik:\n➡ https://en.toram.jp/information/?type_code=all".format(len(dataaa))
+            i = i + 1
+
+            content += "{}). News: {}\n      More info: https://en.toram.jp{}\n\n".format(num, news, link)
+
+        line_bot_api.reply_message(
+            event.reply_token, [
+            TextSendMessage(text="[ R E S U L T ]\n\nBot using by [ "+profile_name+" ] on Toram News:\n\n"+content+tx)])
 
 
 if __name__ == "__main__":
