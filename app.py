@@ -211,8 +211,6 @@ def callback():
 
     return 'OK'
 
-    text = (event.message.text).lower()
-    msg = text.split()
     groupId = event.source.group_id
     userId = event.source.user_id
     profile = line_bot_api.get_profile(userId)
@@ -221,26 +219,24 @@ def callback():
     profile_sm = profile.status_message
 
 
-def apple_news():
-    target_url = 'https://tw.appledaily.com/new/realtime'
-    res = requests.get(target_url)
-    soup = BeautifulSoup(res.text, 'html.parser')
-    content = ""
-
-    for index, data in enumerate(soup.select('.rtddt a'), 0):
-        if index == 10:
-            return content
-
-        heading = data.select_one('h1').text
-        link = data['href']
-
-        content += "{}\n{}\n\n".format(heading, link)
+def trans():
+    separate = text.split("-")
+    separate = separate[1].split(" ")
+    lang = separate[0]
+    say = text.replace(".tr-" + lang + " ","")
+    if lang not in list_language["list_translate"]:
+        return line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text="Bahasa tujuan translate tidak ditemukan."))
+    translator = Translator()
+    hasil = translator.translate(say, dest=lang)
+    content = hasil.text
 
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    if event.message.text == 'Apple news':
-        content = apple_news()
+    if (event.message.text).lower() == '.tr-':
+        content = trans()
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=content)
