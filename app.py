@@ -258,16 +258,18 @@ def handle_message(event):
         dataaa = dataa[0].find_all("li",{"class":"post-item tie-standard"})
         content = "[ RESULT ]\n~ Last Update Anime: Samehadaku ~\n\n\n"
         num = 0
+        i = 0
         for data in dataaa:
             num += 1
-            data = dataaa[0].find('a')
-            date = dataaa[0].find('span').text
+            if i <= 13:
+                pass
+            data = dataaa[i].find('a')
+            date = dataaa[i].find('span').text
             name = data["title"]
             link = data["href"]
-            content += "{}).  Judul: {}".format(num, name)
-            content += "\n       Link: {}".format(link)
-            content += "\n       Tanggal Rilis: {}\n\n".format(date)
             te = "\n✓ Total ada {} update anime.\n✓ Info update anime selengkapnya, klik:\n➡ https://www.samehadaku.tv/".format(len(dataaa))
+            i = i + 1
+            content += "{}).  Judul: {}\n       Link: {}\n       Tanggal Rilis: {}\n\n".format(num, name, link, date)
         line_bot_api.reply_message(
             event.reply_token, [
             TextSendMessage(text=content+te)])
