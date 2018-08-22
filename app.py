@@ -288,10 +288,10 @@ def handle_message(event):
                 event.reply_token,
                 TextSendMessage(text="Bahasa: " + lang + ". Tidak ditemukan."))
         tts = gTTS(text=say, lang=lang)
-        tts.save("hasil.mp3")
+        A = tts.save("hasil.mp3")
         audio_message = AudioSendMessage(
-            original_content_url=hasil.mp3,
-            duration=hasil.mp3
+            original_content_url=A,
+            duration=A
         )
 
         line_bot_api.reply_message(
