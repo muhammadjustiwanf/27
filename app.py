@@ -278,6 +278,28 @@ def handle_message(event):
                 event.reply_token,
                 TextSendMessage(text=tr))
 
+    elif '.say-' in text:
+        separate = text.split("-")
+        separate = separate[1].split(" ")
+        lang = separate[0]
+        say = text.replace(".say-" + lang + " ","")
+        if lang not in list_language["list_textToSpeech"]:
+            return line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text="Bahasa: " + lang + ". Tidak ditemukan."))
+        tts = gTTS(text=say, lang=lang)
+        tts.save("hasil.mp3")
+        audio_message = AudioSendMessage(
+            original_content_url="hasil.mp3",
+            duration="hasil.mp3"
+        )
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            audio_message
+        )
+        return
+
     elif '.carivideo ' in text:
         separate = text.split(" ")
         search = text.replace(separate[0] + " ","")
@@ -298,7 +320,6 @@ def handle_message(event):
         line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=ret_))
-
 
 
 if __name__ == "__main__":
