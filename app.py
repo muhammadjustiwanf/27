@@ -1,25 +1,28 @@
-import time, random, sys, json, codecs, threading, glob, re, string, os, requests, six, ast, pytz, urllib3, urllib.parse, traceback, atexit, wikipedia, goslate, html5lib
+# Script By @Adi
+# Please Don’t Edit If You Doesn’t Have A Permission.
+# © Adi, 2018 All Rights Reserved.
 
 from gtts import gTTS
 from time import sleep
 from datetime import datetime, timedelta
+from bs4 import BeautifulSoup
 from googletrans import Translator
 from urllib.parse import urlparse, urlencode
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError
 from humanfriendly import format_timespan, format_size, format_number, format_length
 
-from bs4 import BeautifulSoup
-
-from flask import Flask, request, abort
+from flask import Flask, request, make_response
 
 from linebot import (
     LineBotApi, WebhookHandler
 )
 from linebot.exceptions import (
-    InvalidSignatureError
+    InvalidSignatureError, LineBotApiError
 )
 from linebot.models import *
+
+import time, random, sys, json, codecs, threading, glob, re, string, os, requests, six, ast, pytz, urllib3, urllib.parse, traceback, atexit, wikipedia, goslate
 
 app = Flask(__name__)
 
@@ -193,7 +196,6 @@ list_language = {
     }
 }
 
-
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -248,31 +250,33 @@ def handle_message(event):
 
         line_bot_api.reply_message(
             event.reply_token, [
-            TextSendMessage(text="[ RESULT ]\nBot using by [ "+profile_name+" ] on Toram News:\n\n"+content+tx)])
+            TextSendMessage(text="[ R E S U L T ]\n\nBot using by [ "+profile_name+" ] on Toram News:\n\n"+content+tx)])
 
-    elif text == '.samehadaku':
-        target = 'https://samehadaku.tv'
-        req = requests.get(target)
-        bs = BeautifulSoup(req.content, "html.parser")
-        dataa = bs.find_all("ul",{"class":"posts-items posts-list-container"})
-        dataaa = dataa[0].find_all("li",{"class":"post-item tie-standard"})
-        content = "[ RESULT ]\n~ Last Update Anime: Samehadaku ~\n\n\n"
-        num = 0
-        i = 0
-        for data in dataaa:
-            num += 1
-            if i <= 13:
-                pass
-            data = dataaa[i].find('a')
-            date = dataaa[i].find('span').text
-            name = data["title"]
-            link = data["href"]
-            te = "\n✓ Total ada {} update anime.\n✓ Info update anime selengkapnya, klik:\n➡ https://www.samehadaku.tv/".format(len(dataaa))
-            i = i + 1
-            content += "{}).  Judul: {}\n       Link: {}\n       Tanggal Rilis: {}\n\n".format(num, name, link, date)
+        return
+
+    if '.apakah ' in text:
+        rep = text.replace(".apakah ","")
+        txt = ["Ya","Tidak","Bisa Jadi","Mungkin","Hoax","Coba tanya lagi"]
+
         line_bot_api.reply_message(
-            event.reply_token, [
-            TextSendMessage(text=content+te)])
+            event.reply_token,
+            TextSendMessage(text=random.choice(txt)))
+
+    elif '.tr-' in text:
+        separate = text.split("-")
+        separate = separate[1].split(" ")
+        lang = separate[0]
+        say = text.replace(".tr-" + lang + " ","")
+        if lang not in list_language["list_translate"]:
+            return line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text="Bahasa: " + lang + ". tidak ditemukan."))
+        translator = Translator()
+        hasil = translator.translate(say, dest=lang)
+        tr = hasil.text
+        line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=tr))
 
 
 if __name__ == "__main__":
