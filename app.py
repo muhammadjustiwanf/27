@@ -290,8 +290,8 @@ def handle_message(event):
         tts = gTTS(text=say, lang=lang)
         tts.save("hasil.mp3")
         audio_message = AudioSendMessage(
-            original_content_url="hasil.mp3",
-            duration="hasil.mp3"
+            original_content_url=hasil.mp3,
+            duration=hasil.mp3
         )
 
         line_bot_api.reply_message(
