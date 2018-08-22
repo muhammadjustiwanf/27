@@ -279,23 +279,25 @@ def handle_message(event):
                 TextSendMessage(text=tr))
 
     elif '.carivideo ' in text:
-        query = text.replace(".carivideo ","")
-        with requests.session() as s:
-            s.headers['user-agent'] = 'Mozilla/5.0'
-            url = 'http://www.youtube.com/results'
-            params = {'search_query': query}
-            source = s.get(url, params=params)
-            bsoup = BeautifulSoup(source.content, 'html5lib')
-            num = 0
-            hasil = "[ SEARCH RESULT ]\n\n"
-            for a in bsoup.select('.yt-lockup-title > a[title]'):
-                num += 1
-                if '&list=' not in a['href']:
-                    judul = "{}. Judul: ".format(num)
-                    hasil += judul + ''.join((a['title'],'\n    Link : https://www.youtube.com' + a['href'],'\n\n'))
-            line_bot_api.reply_message(
+        separate = text.split(" ")
+        search = text.replace(separate[0] + " ","")
+        params = {"search_query": search}
+        source = requests.get("https://www.youtube.com/results", params = params)
+        bsoup = BeautifulSoup(source.content, "html5lib")
+        ret_ = "[ RESULT ]"
+        datas = []
+        num = 0
+        for data in soup.select(".yt-lockup-title > a[title]"):
+            if "&lists" not in data["href"]:
+                datas.append(data)
+        num += 1
+        for data in datas:
+            ret_ += "\n\n{}. Judul: {}".format(num, data["title"])
+            ret_ += "\n    Link: https://www.youtube.com{}".format(data["href"])
+        ret_ += "\n\n[ TOTAL: {} VIDEO ]".format(len(datas))
+        line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text=hasil))
+                TextSendMessage(text=ret_))
 
 
 
